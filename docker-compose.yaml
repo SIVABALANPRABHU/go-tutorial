@@ -1,8 +1,35 @@
 version: '3.8' # Specify the Compose file format version
+
 services:
-  myapp:
-    build: .  # Use the current directory to build the image
+  myapp: # Name of the Go application service
+    build: . # Use the current directory to build the image
     image: go-tutorial:latest # Tag the built image
     container_name: my-go-tutorial # Name the container
+
+  db: # PostgreSQL database service
+    image: postgres:13 # Use the official PostgreSQL image
+    container_name: postgres-db # Name the database container
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pass
+      POSTGRES_DB: postgres_db_name
     ports:
-      - "8080:8080" # Map port 8080 on host to 8080 on container (if your app listens on a port)
+      - "5432:5432" # Expose PostgreSQL on port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - go-postgres-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres_db_name"] # Check if PostgreSQL is ready
+      interval: 10s # Run the check every 10 seconds
+      timeout: 5s # Wait 5 seconds for the test to succeed
+      retries: 5 # Consider the container healthy after 5 retries
+
+# Define volumes for PostgreSQL persistence
+volumes:
+  postgres_data:
+
+# Define the network for communication between services
+networks:
+  go-postgres-network:
+    driver: bridge
