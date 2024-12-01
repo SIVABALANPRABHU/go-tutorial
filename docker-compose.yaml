@@ -1,0 +1,8 @@
+version: '3.8' # Specify the Compose file format version
+services:
+  myapp:
+    build: .  # Use the current directory to build the image
+    image: go-tutorial:latest # Tag the built image
+    container_name: my-go-tutorial # Name the container
+    ports:
+      - "8080:8080" # Map port 8080 on host to 8080 on container (if your app listens on a port)
